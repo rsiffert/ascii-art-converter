@@ -1,0 +1,115 @@
+cc_library(
+  name = "simd",
+  srcs = glob([ 
+                "src/Simd/*.cpp",
+                "src/Simd/*.hpp",
+                "src/Simd/*.h"
+         ]),
+  hdrs = glob(["src/Simd/SimdLib.hpp"]),
+  includes = ["src"],
+  visibility = ["//visibility:public"],
+  copts = select({
+            "@bazel_tools//src/conditions:windows": 
+              [
+                #General
+                "/W3",
+                "/MP",
+                #Optimization
+                "/O2", 
+                "/Ob2",
+                "/Ot",
+                "/Oi",
+                #Code Generation
+                "/EHsc",
+                "/MT",
+                "/GS",
+                "/Gy",
+                "/fp:fast",
+                "/MD",
+                #Language
+                "/Zc:wchar_t",
+                "/Zc:forScope",
+                "/Zc:inline",
+                "/std:c++17",
+                #Advanced
+                "/FC",
+                "/errorReport:prompt",
+                #Simd specific
+                "/DWIN32",
+                "/D_WINDOWS",
+                "/DNDEBUG",
+                "/DSIMD_AVX_DISABLE",
+                "/DSIMD_AVX2_DISABLE",
+                "/DSIMD_AVX512F_DISABLE",
+                "/DSIMD_AVX512BW_DISABLE",
+                "/DSIMD_AVX512VNNI_DISABLE",
+              ],
+            "//conditions:default": []
+          })
+)
+
+cc_test(
+  name = "simd-tests",
+  srcs = glob([
+                "src/Test/*.cpp",
+                "src/Test/*.h"
+         ]),
+  includes = ["src"],
+  deps = ["simd"],
+  linkstatic = True,
+  copts = select({
+            "@bazel_tools//src/conditions:windows": 
+              [
+                #General
+                "/W3",
+                "/MP",
+                #Optimization
+                "/O2", 
+                "/Ob2",
+                "/Ot",
+                "/Oi",
+                #Code Generation
+                "/EHsc",
+                "/MT",
+                "/GS",
+                "/Gy",
+                "/Gd",
+                "/fp:fast",
+                "/MD",
+                #Language
+                "/Zc:wchar_t",
+                "/Zc:forScope",
+                "/Zc:inline",
+                "/std:c++17",
+                #Advanced
+                "/FC",
+                "/errorReport:prompt",
+                #Simd specific
+                "/DWIN32",
+                "/D_WINDOWS",
+                "/DNDEBUG",
+                "/DSIMD_AVX_DISABLE",
+                "/DSIMD_AVX2_DISABLE",
+                "/DSIMD_AVX512F_DISABLE",
+                "/DSIMD_AVX512BW_DISABLE",
+                "/DSIMD_AVX512VNNI_DISABLE",
+              ],
+            "//conditions:default": []
+          }),
+  args = [
+          "-m=s",
+          "-tt=4",
+          "-fi=AbsDifferenceSum",
+          "-fi=DrawFilledRectangle",
+          "-fi=ImageLoadFromMemory",
+          "-fi=BgrToGray",
+          "-r=\".\""
+          #"-r=\"$(execpaths :simd-tests-data)\"" 
+         ],
+  data = ["simd-tests-data"]
+)
+
+filegroup(
+  name = "simd-tests-data",
+  srcs = glob(["data/**"])
+)
