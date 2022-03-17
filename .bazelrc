@@ -1,0 +1,21 @@
+# Windows compiler options
+## General
+build:windows --copt=/Wall
+build:windows --copt=/MP
+## Optimization
+build:windows --copt=/O2 
+build:windows --copt=/Oi
+## Code Generation
+build:windows --copt=/EHsc
+build:windows --copt=/MD
+build:windows --copt=/Gy
+build:windows --copt=/fp:fast
+## Language
+build:windows --copt=/Zc:inline
+
+# Linux compiler options
+## General
+build:linux --copt=-Wall
+build:linux --copt=-Wextra
+## Optimization
+build:linux --copt=-O3

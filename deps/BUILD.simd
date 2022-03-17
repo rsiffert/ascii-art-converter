@@ -1,49 +1,300 @@
+COMMON_DEFINES =    [
+                        "NDEBUG",
+                        "SIMD_INT8_DEBUG_DISABLE",
+                        "SIMD_AVX512F_DISABLE",
+                        "SIMD_AVX512BW_DISABLE",
+                        "SIMD_AVX512VNNI_DISABLE",
+                        "SIMD_SYNET_DISABLE"
+                    ]
+
+WINDOWS_DEFINES =   [
+                        "WIN32",
+                        "_WINDOWS",
+                        "SIMD_AVX2_DISABLE",
+                        "SIMD_AVX_DISABLE"
+                    ]
+
+LINUX_DEFINES = [
+                    "Simd_EXPORTS",
+                ]
+
 cc_library(
-  name = "simd",
+  name = "simd-base",
+  linkstatic = True,
+  srcs = glob(
+  				[
+  					"src/Simd/SimdBase*.cpp",
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+				]
+		),
+  hdrs = glob(
+  				[ 
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+	 	 		]
+ 		),
+  includes = ["src"],
+  visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
+  copts = select({
+  			"@platforms//os:windows":
+				[
+					#Language
+					"/std:c++17"
+				],
+			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
+            "//conditions:default": []
+          }),
+)
+
+cc_library(
+  name = "simd-sse2",
+  linkstatic = True,
   srcs = glob([ 
-                "src/Simd/*.cpp",
+                "src/Simd/SimdSse2*.cpp",
                 "src/Simd/*.hpp",
                 "src/Simd/*.h"
          ]),
-  hdrs = glob(["src/Simd/SimdLib.hpp"]),
+  hdrs = glob(
+  				[ 
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+	 	 		]
+ 		),
   includes = ["src"],
+  deps = ["simd-base"],
   visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+                "//conditions:default": []
+  			}),
   copts = select({
-            "@bazel_tools//src/conditions:windows": 
-              [
-                #General
-                "/W3",
-                "/MP",
-                #Optimization
-                "/O2", 
-                "/Ob2",
-                "/Ot",
-                "/Oi",
-                #Code Generation
-                "/EHsc",
-                "/MT",
-                "/GS",
-                "/Gy",
-                "/fp:fast",
-                "/MD",
-                #Language
-                "/Zc:wchar_t",
-                "/Zc:forScope",
-                "/Zc:inline",
-                "/std:c++17",
-                #Advanced
-                "/FC",
-                "/errorReport:prompt",
-                #Simd specific
-                "/DWIN32",
-                "/D_WINDOWS",
-                "/DNDEBUG",
-                "/DSIMD_AVX_DISABLE",
-                "/DSIMD_AVX2_DISABLE",
-                "/DSIMD_AVX512F_DISABLE",
-                "/DSIMD_AVX512BW_DISABLE",
-                "/DSIMD_AVX512VNNI_DISABLE",
-              ],
+  			"@platforms//os:windows":
+				[
+				    #Code Generation
+                    "/arch:SSE2",
+					#Language
+					"/std:c++17"
+				],
+  			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-msse",
+					"-msse2",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
+            "//conditions:default": []
+          })
+)
+
+cc_library(
+  name = "simd-sse41",
+  linkstatic = True,
+  srcs = glob([ 
+                "src/Simd/SimdSse41*.cpp",
+                "src/Simd/*.hpp",
+                "src/Simd/*.h"
+         ]),
+  hdrs = glob(
+  				[ 
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+	 	 		]
+ 		),
+  includes = ["src"],
+  deps = ["simd-base"],
+  visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
+  copts = select({
+  			"@platforms//os:windows":
+				[
+				    #Code Generation
+				    "/arch:SSE2",
+					#Language
+					"/std:c++17"
+				],
+			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-msse3",
+					"-mssse3",
+					"-msse4.1",
+					"-msse4.2",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
+            "//conditions:default": []
+          })
+)
+
+cc_library(
+  name = "simd-avx1",
+  linkstatic = True,
+  srcs = glob([ 
+                "src/Simd/SimdAvx1*.cpp",
+                "src/Simd/*.hpp",
+                "src/Simd/*.h"
+         ]),
+  hdrs = glob(
+  				[ 
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+	 	 		]
+ 		),
+  includes = ["src"],
+  deps = ["simd-base"],
+  visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
+  copts = select({
+  			"@platforms//os:windows":
+				[
+				    #Code Generation
+				    "/arch:AVX",
+					#Language
+					"/std:c++17"
+				],
+			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-mavx",
+					"-mno-avx256-split-unaligned-load",
+					"-mno-avx256-split-unaligned-store",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
+            "//conditions:default": []
+          })
+)
+
+cc_library(
+  name = "simd-avx2",
+  linkstatic = True,
+  srcs = glob([ 
+                "src/Simd/SimdAvx2*.cpp",
+                "src/Simd/*.hpp",
+                "src/Simd/*.h"
+         ]),
+  hdrs = glob(
+  				[ 
+  					"src/Simd/*.h",
+  					"src/Simd/*.hpp"
+	 	 		]
+ 		),
+  includes = ["src"],
+  deps = ["simd-base"],
+  visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
+  copts = select({
+  			"@platforms//os:windows":
+				[
+				    #Code Generation
+				    "/arch:AVX2",
+					#Language
+					"/std:c++17"
+				],
+			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-mavx2",
+					"-mfma",
+					"-mf16c",
+					"-mbmi",
+					"-mbmi2",
+					"-mlzcnt",
+					"-fabi-version=4",
+					"-mno-avx256-split-unaligned-load",
+					"-mno-avx256-split-unaligned-store",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
+            "//conditions:default": []
+          })
+)
+
+cc_library(
+  name = "simd",
+  alwayslink = True,
+  linkstatic = True,
+  srcs = glob([ 
+  				"src/Simd/SimdLib.cpp",
+                "src/Simd/*.hpp",
+                "src/Simd/*.h"
+         ]),
+  hdrs = [
+  			"src/Simd/SimdLib.hpp"
+		],
+  includes = ["src"],
+  deps = [
+  			"simd-base",
+  			"simd-sse2",
+  			"simd-sse41",
+  			"simd-avx1",
+  			"simd-avx2"
+		],
+  visibility = ["//visibility:public"],
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+  			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
+  copts = select({
+			"@platforms//os:windows":
+				[
+					#Language
+					"/std:c++17"
+				],
+			"@platforms//os:linux":
+				[
+					#Code Generation
+					"-mavx2",
+					"-mfma",
+					"-mavx512bw",
+					"-mavx512vnni",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11"
+				],
             "//conditions:default": []
           })
 )
@@ -56,55 +307,40 @@ cc_test(
          ]),
   includes = ["src"],
   deps = ["simd"],
-  linkstatic = True,
+  linkstatic = False,
+  defines = COMMON_DEFINES +
+  			select({
+  			    "@platforms//os:windows": WINDOWS_DEFINES,
+			    "@platforms//os:linux": LINUX_DEFINES,
+			    "//conditions:default": []
+  			}),
   copts = select({
-            "@bazel_tools//src/conditions:windows": 
-              [
-                #General
-                "/W3",
-                "/MP",
-                #Optimization
-                "/O2", 
-                "/Ob2",
-                "/Ot",
-                "/Oi",
-                #Code Generation
-                "/EHsc",
-                "/MT",
-                "/GS",
-                "/Gy",
-                "/Gd",
-                "/fp:fast",
-                "/MD",
-                #Language
-                "/Zc:wchar_t",
-                "/Zc:forScope",
-                "/Zc:inline",
-                "/std:c++17",
-                #Advanced
-                "/FC",
-                "/errorReport:prompt",
-                #Simd specific
-                "/DWIN32",
-                "/D_WINDOWS",
-                "/DNDEBUG",
-                "/DSIMD_AVX_DISABLE",
-                "/DSIMD_AVX2_DISABLE",
-                "/DSIMD_AVX512F_DISABLE",
-                "/DSIMD_AVX512BW_DISABLE",
-                "/DSIMD_AVX512VNNI_DISABLE",
-              ],
+			"@platforms//os:windows":
+				[
+					#Language
+					"/std:c++17"
+				],
+           	"@platforms//os:linux":
+              	[
+              		#Code Generation
+					"-msse3",
+					"-msse3",
+					"-msse4.1",
+					"-msse4.2",
+					"-m64",
+					"-fPIC",
+					#Language
+					"-std=c++11",
+				],
             "//conditions:default": []
           }),
   args = [
-          "-m=s",
-          "-tt=4",
-          "-fi=AbsDifferenceSum",
-          "-fi=DrawFilledRectangle",
-          "-fi=ImageLoadFromMemory",
-          "-fi=BgrToGray",
-          "-r=\".\""
-          #"-r=\"$(execpaths :simd-tests-data)\"" 
+          	"-m=a",
+          	"-tt=4",
+          	"-fi=AbsDifferenceSum",
+          	"-fi=DrawFilledRectangle",
+          	"-fi=ImageLoadFromMemory",
+          	"-fi=BgrToGray",
          ],
   data = ["simd-tests-data"]
 )

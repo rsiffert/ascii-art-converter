@@ -1,8 +1,8 @@
 #ifndef ASCII_ART_CONVERTER_SRC_BITMAP_BLOCK
 #define ASCII_ART_CONVERTER_SRC_BITMAP_BLOCK
 
-#include "ascii_block.h"
 #include "common.h"
+#include "ascii_block.h"
 
 namespace ascii_art_converter {
 

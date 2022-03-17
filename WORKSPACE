@@ -7,11 +7,3 @@ http_archive(
   build_file = "//deps:BUILD.simd",
   strip_prefix = "simd"
 )
-
-http_archive(
-  name = "FreeImage",
-  url = "https://sourceforge.net/projects/freeimage/files/Source%20Distribution/3.18.0/FreeImage3180.zip",
-  sha256 = "f41379682f9ada94ea7b34fe86bf9ee00935a3147be41b6569c9605a53e438fd",
-  build_file = "//deps:BUILD.FreeImage",
-  strip_prefix = "FreeImage"
-)
